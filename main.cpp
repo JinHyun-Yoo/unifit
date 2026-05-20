@@ -3,17 +3,27 @@
 #include "student.h"
 #include "university.h"
 
-void showMenu() {
-    printf("\n========== ¼ºÀû °ü¸® ½Ã½ºÅÛ ==========\n");
-    printf("1. È¸¿ø Á¤º¸ ÀÔ·Â\n");
-    printf("2. È¸¿ø Á¤º¸ ¼öÁ¤\n");
-    printf("3. È¸¿ø Å»Åğ\n");
-    printf("4. ´ëÇĞ±³ ÀÔ½Ã ºñ±³\n");
-    printf("0. Á¾·á\n");
-    printf("¸Ş´º ¼±ÅÃ: ");
+void showMenu(void) {
+    printf("\n========== UNIFIT í•™ìƒ ì…ì‹œ ê´€ë¦¬ ì‹œìŠ¤í…œ ==========" "\n");
+    printf("1. íšŒì› ì •ë³´ ì…ë ¥\n");
+    printf("2. íšŒì› ì •ë³´ ìˆ˜ì •\n");
+    printf("3. íšŒì› íƒˆí‡´\n");
+    printf("4. ëŒ€í•™ ì…ì‹œ ì˜ˆìƒ ë° ì§€ì›\n");
+    printf("5. ì•½ì  íƒìƒ‰\n");
+    printf("6. ëª¨ì˜ ë©´ì ‘ & ëŒ€í•™ í›„ê¸°\n");
+    printf("7. ëŒ€í•™ ë° ì…ì‹œ ê´€ë ¨ ì†Œì‹\n");
+    printf("0. ì¢…ë£Œ\n");
+    printf("ë©”ë‰´ ì„ íƒ: ");
 }
 
-int main() {
+int inputStudentId(void) {
+    int id;
+    printf("í•™ë²ˆ ì…ë ¥: ");
+    scanf("%d", &id);
+    return id;
+}
+
+int main(void) {
     Student* root = NULL;
     int menu;
 
@@ -22,78 +32,43 @@ int main() {
         scanf("%d", &menu);
 
         if (menu == 1) {
-            int id, korean, english, math, science;
-            char name[30];
-
-            printf("ÇĞ¹ø ÀÔ·Â: ");
-            scanf("%d", &id);
-
-            printf("ÀÌ¸§ ÀÔ·Â: ");
-            scanf("%s", name);
-
-            printf("±¹¾î Á¡¼ö ÀÔ·Â: ");
-            scanf("%d", &korean);
-
-            printf("¿µ¾î Á¡¼ö ÀÔ·Â: ");
-            scanf("%d", &english);
-
-            printf("¼öÇĞ Á¡¼ö ÀÔ·Â: ");
-            scanf("%d", &math);
-
-            printf("°úÇĞ Á¡¼ö ÀÔ·Â: ");
-            scanf("%d", &science);
-
-            Student* newStudent = createStudent(id, name, korean, english, math, science);
+            Student* newStudent = is_login();
             root = insertStudent(root, newStudent);
-
-            printf("ÇĞ»ı Á¤º¸°¡ Ãß°¡µÇ¾ú½À´Ï´Ù.\n");
         }
-
         else if (menu == 2) {
-            int id;
-
-            printf("¼öÁ¤ÇÒ ÇĞ»ıÀÇ ÇĞ¹ø ÀÔ·Â: ");
-            scanf("%d", &id);
-
-            updateStudentInfo(root, id);
+            int id = inputStudentId();
+            Student* student = searchStudent(root, id);
+            is_remake(student);
         }
-
         else if (menu == 3) {
-            int id;
-
-            printf("»èÁ¦ÇÒ ÇĞ¹ø ÀÔ·Â: ");
-            scanf("%d", &id);
-
+            int id = inputStudentId();
             root = deleteStudent(root, id);
         }
-
         else if (menu == 4) {
-            int id;
-
-            printf("ÀÔ½Ã ºñ±³ÇÒ ÇĞ»ıÀÇ ÇĞ¹ø ÀÔ·Â: ");
-            scanf("%d", &id);
-
-            Student* result = searchStudent(root, id);
-
-            if (result == NULL) {
-                printf("ÇĞ»ıÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù.\n");
-            }
-            else {
-                compareUniversity(result);
-            }
+            int id = inputStudentId();
+            Student* student = searchStudent(root, id);
+            is_verse(student);
         }
-
+        else if (menu == 5) {
+            int id = inputStudentId();
+            Student* student = searchStudent(root, id);
+            is_weak(student);
+        }
+        else if (menu == 6) {
+            is_review();
+        }
+        else if (menu == 7) {
+            is_date();
+        }
         else if (menu == 0) {
-            printf("ÇÁ·Î±×·¥À» Á¾·áÇÕ´Ï´Ù.\n");
+            printf("í”„ë¡œê·¸ë¨ì„ ì¢…ë£Œí•©ë‹ˆë‹¤.\n");
             break;
         }
-
         else {
-            printf("Àß¸øµÈ ¸Ş´ºÀÔ´Ï´Ù. ´Ù½Ã ¼±ÅÃÇÏ¼¼¿ä.\n");
+            printf("ì˜ëª»ëœ ë©”ë‰´ì…ë‹ˆë‹¤. ë‹¤ì‹œ ì„ íƒí•˜ì„¸ìš”.\n");
         }
     }
 
     freeTree(root);
-
     return 0;
 }
