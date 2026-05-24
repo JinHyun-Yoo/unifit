@@ -4,68 +4,68 @@
 #include <string.h>
 #include "student.h"
 
-double calculateAverage(int korean, int english, int math, int science) {
-    return (korean + english + math + science) / 4.0;
-}
+/*
+    is_login()
+    - 회원 정보를 입력받는 함수
+    - 과목 점수와 평균 계산은 사용하지 않고, 내신 등급을 직접 입력받는다.
+*/
+Member* is_login(void) {
+    Member* newMember = (Member*)malloc(sizeof(Member));
 
-double calculateGrade(double average) {
-    if (average >= 95) return 1.0;
-    else if (average >= 90) return 1.5;
-    else if (average >= 85) return 2.0;
-    else if (average >= 80) return 2.5;
-    else if (average >= 75) return 3.0;
-    else if (average >= 70) return 3.5;
-    else if (average >= 65) return 4.0;
-    else if (average >= 60) return 4.5;
-    else return 5.0;
-}
-
-Student* createStudent(int id, char name[], int korean, int english, int math, int science) {
-    Student* newStudent = (Student*)malloc(sizeof(Student));
-
-    if (newStudent == NULL) {
+    if (newMember == NULL) {
         printf("메모리 할당 실패\n");
         exit(1);
     }
 
-    newStudent->id = id;
-    strcpy(newStudent->name, name);
+    printf("회원 번호 입력: ");
+    scanf("%d", &newMember->id);
 
-    newStudent->korean = korean;
-    newStudent->english = english;
-    newStudent->math = math;
-    newStudent->science = science;
+    printf("회원 이름 입력: ");
+    scanf("%29s", newMember->name);
 
-    newStudent->average = calculateAverage(korean, english, math, science);
-    newStudent->grade = calculateGrade(newStudent->average);
+    printf("내신 등급 입력 예: 2.5 : ");
+    scanf("%lf", &newMember->grade);
 
-    newStudent->left = NULL;
-    newStudent->right = NULL;
+    newMember->left = NULL;
+    newMember->right = NULL;
 
-    return newStudent;
+    return newMember;
 }
 
-Student* insertStudent(Student* root, Student* newStudent) {
-    if (root == NULL) {
-        printf("학생 정보가 입력되었습니다.\n");
-        return newStudent;
+/*
+    insertMember()
+    - 이진 탐색 트리에 회원을 추가하는 함수
+    - 회원 번호가 작으면 왼쪽, 크면 오른쪽에 저장한다.
+*/
+Member* insertMember(Member* root, Member* newMember) {
+    if (newMember == NULL) {
+        return root;
     }
 
-    if (newStudent->id < root->id) {
-        root->left = insertStudent(root->left, newStudent);
+    if (root == NULL) {
+        printf("회원 정보가 입력되었습니다.\n");
+        return newMember;
     }
-    else if (newStudent->id > root->id) {
-        root->right = insertStudent(root->right, newStudent);
+
+    if (newMember->id < root->id) {
+        root->left = insertMember(root->left, newMember);
+    }
+    else if (newMember->id > root->id) {
+        root->right = insertMember(root->right, newMember);
     }
     else {
-        printf("이미 존재하는 학번입니다. 입력이 취소되었습니다.\n");
-        free(newStudent);
+        printf("이미 존재하는 회원 번호입니다. 입력한 정보는 저장하지 않습니다.\n");
+        free(newMember);
     }
 
     return root;
 }
 
-Student* searchStudent(Student* root, int id) {
+/*
+    searchMember()
+    - 회원 번호를 기준으로 회원을 찾는 함수
+*/
+Member* searchMember(Member* root, int id) {
     if (root == NULL) {
         return NULL;
     }
@@ -74,206 +74,129 @@ Student* searchStudent(Student* root, int id) {
         return root;
     }
     else if (id < root->id) {
-        return searchStudent(root->left, id);
+        return searchMember(root->left, id);
     }
     else {
-        return searchStudent(root->right, id);
+        return searchMember(root->right, id);
     }
 }
 
-static Student* findMin(Student* root) {
+/*
+    findMin()
+    - 삭제 과정에서 오른쪽 서브트리의 가장 작은 노드를 찾는 함수
+    - student.c 내부에서만 사용하므로 헤더 파일에는 선언하지 않는다.
+*/
+static Member* findMin(Member* root) {
     while (root != NULL && root->left != NULL) {
         root = root->left;
     }
     return root;
 }
 
-Student* deleteStudent(Student* root, int id) {
+/*
+    deleteMember()
+    - 회원 번호를 기준으로 회원을 삭제하는 함수
+*/
+Member* deleteMember(Member* root, int id) {
     if (root == NULL) {
-        printf("삭제할 학생을 찾을 수 없습니다.\n");
+        printf("삭제할 회원을 찾을 수 없습니다.\n");
         return NULL;
     }
 
     if (id < root->id) {
-        root->left = deleteStudent(root->left, id);
+        root->left = deleteMember(root->left, id);
     }
     else if (id > root->id) {
-        root->right = deleteStudent(root->right, id);
+        root->right = deleteMember(root->right, id);
     }
     else {
-        Student* temp;
+        Member* temp;
 
+        // 자식이 없거나 오른쪽 자식만 있는 경우
         if (root->left == NULL) {
             temp = root->right;
             free(root);
-            printf("학생 정보가 삭제되었습니다.\n");
+            printf("회원 정보가 삭제되었습니다.\n");
             return temp;
         }
-        else if (root->right == NULL) {
+
+        // 왼쪽 자식만 있는 경우
+        if (root->right == NULL) {
             temp = root->left;
             free(root);
-            printf("학생 정보가 삭제되었습니다.\n");
+            printf("회원 정보가 삭제되었습니다.\n");
             return temp;
         }
 
+        // 자식이 두 명인 경우: 오른쪽 서브트리에서 가장 작은 값을 가져온다.
         temp = findMin(root->right);
-
         root->id = temp->id;
         strcpy(root->name, temp->name);
-        root->korean = temp->korean;
-        root->english = temp->english;
-        root->math = temp->math;
-        root->science = temp->science;
-        root->average = temp->average;
         root->grade = temp->grade;
 
-        root->right = deleteStudent(root->right, temp->id);
+        root->right = deleteMember(root->right, temp->id);
     }
 
     return root;
 }
 
 /*
-    학생 정보 입력 함수
-    함수명: is_login()
-    설명: 학번, 이름, 점수를 입력받아 새로운 학생 노드를 만든다.
+    is_remake()
+    - 회원 정보를 최신화하는 함수
+    - 회원 번호는 트리 정렬 기준이므로 수정하지 않고, 이름과 내신 등급만 수정한다.
 */
-Student* is_login(void) {
-    int id, korean, english, math, science;
-    char name[30];
+void is_remake(Member* root) {
+    int id;
+    Member* member;
 
-    printf("\n========== 학생 정보 입력 ==========" "\n");
+    if (root == NULL) {
+        printf("등록된 회원 정보가 없습니다.\n");
+        return;
+    }
 
-    printf("학번 입력: ");
+    printf("수정할 회원 번호 입력: ");
     scanf("%d", &id);
 
-    printf("이름 입력: ");
-    scanf("%s", name);
+    member = searchMember(root, id);
 
-    printf("국어 점수 입력: ");
-    scanf("%d", &korean);
-
-    printf("영어 점수 입력: ");
-    scanf("%d", &english);
-
-    printf("수학 점수 입력: ");
-    scanf("%d", &math);
-
-    printf("과학 점수 입력: ");
-    scanf("%d", &science);
-
-    return createStudent(id, name, korean, english, math, science);
-}
-
-/*
-    학생 정보 최신화 함수
-    함수명: is_remake()
-    설명: 기존 학생의 이름과 점수를 수정하고 평균과 내신 등급을 다시 계산한다.
-*/
-void is_remake(Student* student) {
-    if (student == NULL) {
-        printf("수정할 학생을 찾을 수 없습니다.\n");
+    if (member == NULL) {
+        printf("해당 회원을 찾을 수 없습니다.\n");
         return;
     }
 
-    printf("\n========== 학생 정보 최신화 ==========" "\n");
-    printf("[기존 학생 정보]\n");
-    printStudent(student);
+    printf("\n[현재 회원 정보]\n");
+    printMember(member);
 
     printf("\n새 이름 입력: ");
-    scanf("%s", student->name);
+    scanf("%29s", member->name);
 
-    printf("새 국어 점수 입력: ");
-    scanf("%d", &student->korean);
+    printf("새 내신 등급 입력 예: 2.5 : ");
+    scanf("%lf", &member->grade);
 
-    printf("새 영어 점수 입력: ");
-    scanf("%d", &student->english);
-
-    printf("새 수학 점수 입력: ");
-    scanf("%d", &student->math);
-
-    printf("새 과학 점수 입력: ");
-    scanf("%d", &student->science);
-
-    student->average = calculateAverage(
-        student->korean,
-        student->english,
-        student->math,
-        student->science
-    );
-
-    student->grade = calculateGrade(student->average);
-
-    printf("\n학생 정보가 최신화되었습니다.\n");
-    printf("\n[최신화된 학생 정보]\n");
-    printStudent(student);
+    printf("\n회원 정보가 최신화되었습니다.\n");
+    printf("\n[최신화된 회원 정보]\n");
+    printMember(member);
 }
 
 /*
-    약점 탐색 함수
-    함수명: is_weak()
-    설명: 학생 성적 중 가장 낮은 과목을 찾아 학습 조언을 출력한다.
+    printMember()
+    - 회원 1명의 정보를 출력하는 함수
 */
-void is_weak(Student* student) {
-    if (student == NULL) {
-        printf("학생을 찾을 수 없습니다.\n");
+void printMember(Member* member) {
+    if (member == NULL) {
         return;
     }
 
-    int min = student->korean;
-
-    if (student->english < min) min = student->english;
-    if (student->math < min) min = student->math;
-    if (student->science < min) min = student->science;
-
-    printf("\n========== 약점 탐색 결과 ==========" "\n");
-    printf("학생 이름: %s\n", student->name);
-    printf("국어: %d점\n", student->korean);
-    printf("영어: %d점\n", student->english);
-    printf("수학: %d점\n", student->math);
-    printf("과학: %d점\n", student->science);
-
-    printf("\n가장 약한 과목: ");
-    if (student->korean == min) printf("국어 ");
-    if (student->english == min) printf("영어 ");
-    if (student->math == min) printf("수학 ");
-    if (student->science == min) printf("과학 ");
-
-    printf("\n최저 점수: %d점\n", min);
-
-    printf("\n[학습 조언]\n");
-    if (min >= 85) {
-        printf("전체적으로 성적이 좋은 편입니다. 심화 문제 위주로 공부하면 좋습니다.\n");
-    }
-    else if (min >= 70) {
-        printf("기본 개념은 어느 정도 되어 있습니다. 오답 노트를 활용해 보완하세요.\n");
-    }
-    else {
-        printf("기초 개념부터 다시 정리하고 쉬운 문제부터 반복 학습하세요.\n");
-    }
-
-    if (student->korean == min) printf("- 국어: 지문 독해 연습과 어휘 정리를 추천합니다.\n");
-    if (student->english == min) printf("- 영어: 단어 암기와 문법 기초 복습을 추천합니다.\n");
-    if (student->math == min) printf("- 수학: 공식 암기보다 문제 풀이 과정을 이해하는 연습이 필요합니다.\n");
-    if (student->science == min) printf("- 과학: 개념 정리 후 기출 문제를 풀어보는 것을 추천합니다.\n");
+    printf("회원 번호: %d\n", member->id);
+    printf("회원 이름: %s\n", member->name);
+    printf("내신 등급: %.2lf\n", member->grade);
 }
 
-void printStudent(Student* student) {
-    if (student == NULL) {
-        return;
-    }
-
-    printf("학번: %d\n", student->id);
-    printf("이름: %s\n", student->name);
-    printf("국어: %d\n", student->korean);
-    printf("영어: %d\n", student->english);
-    printf("수학: %d\n", student->math);
-    printf("과학: %d\n", student->science);
-    printf("평균: %.2lf\n", student->average);
-    printf("내신 등급: %.1lf\n", student->grade);
-}
-
-void freeTree(Student* root) {
+/*
+    freeTree()
+    - 프로그램 종료 전 동적 할당된 회원 노드를 모두 해제하는 함수
+*/
+void freeTree(Member* root) {
     if (root == NULL) {
         return;
     }
