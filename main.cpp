@@ -12,8 +12,8 @@
 void showMenu(void) {
     printf("\n========== UNIFIT 회원 입시 관리 시스템 ==========" "\n");
     printf("1. 회원 정보 입력\n");
-    printf("2. 회원 정보 최신화\n");
-    printf("3. 회원 삭제\n");
+    printf("2. 회원 정보 수정\n");
+    printf("3. 회원 탈퇴\n");
     printf("4. 전형별 대학 입시 예상 및 지원\n");
     printf("5. 대학 후기 / 모의 면접\n");
     printf("6. 대학 및 입시 관련 소식\n");
