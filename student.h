@@ -1,40 +1,42 @@
 #ifndef STUDENT_H
 #define STUDENT_H
 
+/*
+    student.h
+    - 회원 정보를 저장할 구조체와 회원 관리 함수 선언 파일
+    - 실제 구현은 student.c에 작성되어 있음
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    typedef struct Student {
-        int id;
-        char name[30];
+    /* 회원 정보를 저장하는 구조체
+       트리 기반 관리를 위해 left, right 포인터를 사용한다. */
+    typedef struct Member {
+        int id;                 // 회원 번호 또는 학번
+        char name[30];          // 회원 이름
+        double grade;           // 회원 내신 등급, 숫자가 낮을수록 좋음
 
-        int korean;
-        int english;
-        int math;
-        int science;
+        struct Member* left;    // 현재 회원보다 id가 작은 회원
+        struct Member* right;   // 현재 회원보다 id가 큰 회원
+    } Member;
 
-        double average;
-        double grade;
+    /* 회원 정보 입력 함수
+       사용자가 회원 번호, 이름, 내신 등급을 입력하면 새 회원 노드를 생성한다. */
+    Member* is_login(void);
 
-        struct Student* left;
-        struct Student* right;
-    } Student;
+    /* 회원 추가, 검색, 삭제 함수 */
+    Member* insertMember(Member* root, Member* newMember);
+    Member* searchMember(Member* root, int id);
+    Member* deleteMember(Member* root, int id);
 
-    double calculateAverage(int korean, int english, int math, int science);
-    double calculateGrade(double average);
+    /* 회원 정보 최신화 함수 */
+    void is_remake(Member* root);
 
-    Student* createStudent(int id, char name[], int korean, int english, int math, int science);
-    Student* insertStudent(Student* root, Student* newStudent);
-    Student* searchStudent(Student* root, int id);
-    Student* deleteStudent(Student* root, int id);
-
-    Student* is_login(void);          // 학생 정보 입력 함수
-    void is_remake(Student* student); // 학생 정보 최신화 함수
-    void is_weak(Student* student);   // 약점 탐색 함수
-
-    void printStudent(Student* student);
-    void freeTree(Student* root);
+    /* 회원 정보 출력 및 전체 메모리 해제 함수 */
+    void printMember(Member* member);
+    void freeTree(Member* root);
 
 #ifdef __cplusplus
 }
